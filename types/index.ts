@@ -1,140 +1,59 @@
-// ===== SPECIAL TYPES =====
-// any -- disables TypeScript type checking
-// [!] Avoid using this; it defeats the purpose of TypeScript
-let anything: any = "hello";
-anything = 42; // No error
-anything = true; // No error
-// unknown -- the safer version of any
-// You MUST check the type before using it
-let userInput: unknown = "test";
-if (typeof userInput === "string") {
-  console.log(userInput.toUpperCase()); // OK -- TypeScript knows it's a string here
-}
-// never -- a function that NEVER returns
-// Used when a function always throws an error or loops forever
-function throwError(message: string): never {
-  throw new Error(message);
-}
-
-
-
 // ===== INTERFACES =====
-// An interface defines the SHAPE of an object -- what fields it must have.
+// Defines the SHAPE of our 3 core Library System entities
+
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: "student" | "admin" | "instructor"; // only these values
+  role: "MEMBER" | "LIBRARIAN"; // Powers Module 3 Auth
   isActive: boolean;
 }
-export interface Course {
-  code: string;
-  title: string;
-  units: number;
-  semester: string;
-}
-export interface Submission {
+
+export interface Book {
   id: number;
-  studentId: number;
-  courseCode: string;
-  repoUrl: string;
-  submittedAt: Date;
-  score?: number; // ? means this field is optional
+  title: string;
+  author: string;
+  isbn: string;
+  total_copies: number;
+  available_copies: number; // Powers Module 4 Live Counts
+  description: string; // Will be AI-generated (Module 5)
 }
 
-
-
-
-//===== UTILITY TYPES =====
-// Partial<T> -- every field becomes optional
-export type UserUpdate = Partial<User>;
-// Pick<T, K> -- keep ONLY the listed fields
-export type UserPreview = Pick<User, "id" | "name" | "role">;
-// Omit<T, K> -- keep every field EXCEPT the listed ones
-export type PublicUser = Omit<User, "email" | "isActive">;
-// Record<K, T> -- a fixed set of keys, each mapped to the same value type
-export type RoleCount = Record<"student" | "admin" | "instructor", number>;
-
-
-
-
-// ===== ENUMS =====
-// Regular enum -- exists at runtime; can be looped over or reverse-mapped
-export enum SubmissionStatus {
-  Pending,
-  Graded,
-  Late,
+export interface Transaction {
+  id: number;
+  userId: number; // Maps to user_id in DB
+  bookId: number; // Maps to book_id in DB
+  status: "REQUESTED" | "APPROVED" | "BORROWED" | "RETURNED" | "OVERDUE"; // Multi-step Lifecycle
+  requestDate: Date;
+  dueDate: Date;
+  returnDate: Date | null; // Null if not yet returned
 }
-// const enum -- inlined at compile time, zero runtime overhead
-export const enum Role {
-  Student = "student",
-  Admin = "admin",
-  Instructor = "instructor",
-}
-
-
-
 
 // ===== TYPE ALIASES =====
-// A type alias gives a name to any type -- primitives, unions, functions, objects
+// Gives a name to primitives, unions, or object shapes
+
 // Alias for a union type (string OR number)
-export type ID = number | string;
-// Alias for an object shape
-export type Coordinate = {
-  x: number;
-  y: number;
-};
-// Alias for a function signature
-export type Formatter = (value: number) => string;
-// Using them
-const studentId: ID = "S2026-001";
-const position: Coordinate = { x: 10, y: 20 };
-const formatScore: Formatter = (value) => `${value}%`;
-console.log(studentId); // S2026-001
-console.log(formatScore(95.5)); // 95.5%
-
-
-
-
-// ===== UNION TYPES -- One OR the other =====
 export type StringOrNumber = string | number;
-export type Status = "pending" | "active" | "inactive"; // literal union
-// Function that accepts a union type
+
+// Alias for an object shape
+export type LibraryLocation = {
+  floor: number;
+  shelf: string;
+};
+
+// Alias for a function signature
+export type CopyFormatter = (copies: number) => string;
+
+// ===== UNION TYPES =====
+export type Status = "pending" | "active" | "inactive"; 
+
 export function printId(id: StringOrNumber): void {
   console.log(`ID: ${id}`);
 }
-printId(101);
-printId("S2026-001");
 
-
-// ===== INTERSECTION TYPES -- combines ALL properties =====
-// StudentWithCourse must have all User fields AND enrolledCourse AND gpa
-export type StudentWithCourse = User & {
-  enrolledCourse: Course;
-  gpa: number;
+// ===== INTERSECTION TYPES =====
+// Combines ALL properties. Useful for enriched data returned from an API.
+// Example: A User object that also includes their current active transaction details.
+export type MemberWithActiveTransaction = User & {
+  activeTransaction: Transaction;
 };
-const topStudent: StudentWithCourse = {
-  id: 1,
-  name: "Maria Santos",
-  email: "m@example.com",
-  role: "student",
-  isActive: true,
-  enrolledCourse: {
-    code: "ITELECT4",
-    title: "IT Elective 4",
-    units: 3,
-    semester: "1st",
-  },
-  gpa: 1.25,
-};
-
-
-// ----- types/index.ts -----
-// ===== GENERIC INTERFACE =====
-// ApiResponse<T> can wrap ANY data type -- every future GT reuses this
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
-
