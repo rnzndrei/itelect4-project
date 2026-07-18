@@ -1,20 +1,75 @@
-# Library System
+# React + TypeScript + Vite
 
-A TypeScript-based web application for managing university library operations. It features role-based access (Member/Librarian), a multi-step transaction lifecycle, and AI-assisted book descriptions.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Project Concept
-This project fulfills the requirements for a full-stack TypeScript application, demonstrating:
-- Strict type checking with Interfaces and Type Aliases.
-- Generic types (`ApiResponse<T>`) and generic functions (`getById`).
-- Utility types (`Partial`, `Pick`, `Omit`, `Record`, `ReturnType`).
-- Enumerations for robust state management (e.g., `TransactionStatus`).
-- Type narrowing (`typeof`, `instanceof`) for safe runtime operations.
+Currently, two official plugins are available:
 
-## How to Run
-1. Ensure you have Node.js and TypeScript installed.
-2. Initialize the project (if not already done): `npm init -y`
-3. Install TypeScript as a dev dependency: `npm install -D typescript`
-4. Initialize `tsconfig.json`: `npx tsc --init`
-5. Run the type checker to verify zero errors: `npx tsc --noEmit`
-6. Execute the code: `npx ts-node src/index.ts` 
-   *(Alternatively, compile with `npx tsc` and run with `node dist/index.js`)*
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+
+```
