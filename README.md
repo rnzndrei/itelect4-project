@@ -1,75 +1,51 @@
-# React + TypeScript + Vite
+# Library System (ITELECT4 Project)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A strictly-typed TypeScript web application for managing university library operations. This project is built incrementally, session by session, demonstrating mastery of advanced TypeScript concepts, React component architecture, and type-safe state management.
 
-Currently, two official plugins are available:
+## 📚 Project Concept
+The Library System manages three core entities:
+1. **User**: Features role-based access control (`MEMBER` or `LIBRARIAN`) to power future UI conditional rendering.
+2. **Book**: Includes inventory tracking (`total_copies`, `available_copies`) to support live count updates.
+3. **Transaction**: Implements a multi-step status lifecycle (`REQUESTED` → `APPROVED` → `BORROWED` → `RETURNED` / `OVERDUE`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tech Stack
+- **Language**: TypeScript (Strict Mode)
+- **Frontend Framework**: React 18+ with Vite
+- **Build Tool**: Vite
+- **Styling**: CSS (with Tailwind CSS integration planned for future sessions)
 
-## React Compiler
+## ✨ TypeScript Features Implemented
+- **Core Interfaces**: Strict shapes for `User`, `Book`, and `Transaction`.
+- **Generics**: Reusable `ApiResponse<T>` interface and constrained generic functions (`getFirst<T>`, `getById<T>`).
+- **Utility Types**: Practical applications of `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, T>`, and `ReturnType<T>`.
+- **Enums**: Runtime `TransactionStatus` enum for lifecycle management and `const enum` for `UserRole`.
+- **Type Narrowing**: Safe runtime checks using `typeof` and `instanceof`.
+- **Typed React Components**: Reusable UI components (`UserCard`, `BookCard`, `TransactionBadge`) with explicit `Props` interfaces and typed event handlers (`React.MouseEvent`, `React.ChangeEvent`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📂 Project Structure
+itelect4-project/
+├── src/
+│   ├── components/       # Reusable, strictly-typed React components
+│   │   ├── BookCard.tsx
+│   │   ├── TransactionBadge.tsx
+│   │   └── UserCard.tsx
+│   ├── types/
+│   │   └── index.ts      # All core interfaces, types, enums, and generics
+│   ├── App.tsx           # Main application component with mock data
+│   └── main.tsx          # Vite React entry point
+├── index.html
+├── package.json
+├── tsconfig.json         # Configured for strict TypeScript checking
+└── README.md
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+🚀 How to Run
+Prerequisites: Ensure you have Node.js (v18+) and npm installed.
+Clone the repository:
+   git clone <your-repo-url>
+   cd itelect4-project
+Install dependencies:
+   npm install
+Verify TypeScript (Zero Errors):
+   npx tsc --noEmit
+Start the development server:
+   npm run dev
