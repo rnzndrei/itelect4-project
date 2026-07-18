@@ -1,4 +1,4 @@
-import type { User, Book, Transaction, MemberWithActiveTransaction, StringOrNumber } from "../types/index";
+import type { User, Book, Transaction, MemberWithActiveTransaction, StringOrNumber } from "./types/index";
 
 // ===== PRIMITIVE TYPE ANNOTATIONS =====
 const projectName: string = "library-system";
