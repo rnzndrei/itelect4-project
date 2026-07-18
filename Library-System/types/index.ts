@@ -1,11 +1,9 @@
-// ===== INTERFACES =====
-// Defines the SHAPE of our 3 core Library System entities
-
+// ===== INTERFACES (Part 1 Core Entities) =====
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: "MEMBER" | "LIBRARIAN"; // Powers Module 3 Auth
+  role: "MEMBER" | "LIBRARIAN";
   isActive: boolean;
 }
 
@@ -15,45 +13,65 @@ export interface Book {
   author: string;
   isbn: string;
   total_copies: number;
-  available_copies: number; // Powers Module 4 Live Counts
-  description: string; // Will be AI-generated (Module 5)
+  available_copies: number;
+  description: string;
 }
 
 export interface Transaction {
   id: number;
-  userId: number; // Maps to user_id in DB
-  bookId: number; // Maps to book_id in DB
-  status: "REQUESTED" | "APPROVED" | "BORROWED" | "RETURNED" | "OVERDUE"; // Multi-step Lifecycle
+  userId: number;
+  bookId: number;
+  status: TransactionStatus; // Using the enum below
   requestDate: Date;
   dueDate: Date;
-  returnDate: Date | null; // Null if not yet returned
+  returnDate: Date | null;
 }
 
-// ===== TYPE ALIASES =====
-// Gives a name to primitives, unions, or object shapes
+// ===== GENERIC INTERFACE =====
+// ApiResponse<T> can wrap ANY data type -- reusable across the app
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
 
-// Alias for a union type (string OR number)
+// ===== UTILITY TYPES =====
+// Partial<T> -- update payload only needs the changed fields
+export type UserUpdate = Partial<User>;
+
+// Pick<T, K> -- a lightweight preview object for list views
+export type BookPreview = Pick<Book, "id" | "title" | "author">;
+
+// Omit<T, K> -- safe to expose publicly (hides internal copy counts)
+export type PublicBook = Omit<Book, "total_copies" | "available_copies">;
+
+// Record<K, T> -- dashboard-style counts for specific keys
+export type RoleCount = Record<"MEMBER" | "LIBRARIAN", number>;
+
+// ===== ENUMS =====
+// Regular enum -- exists at runtime; great for multi-step lifecycle
+export enum TransactionStatus {
+  REQUESTED = "REQUESTED",
+  APPROVED = "APPROVED",
+  BORROWED = "BORROWED",
+  RETURNED = "RETURNED",
+  OVERDUE = "OVERDUE",
+}
+
+// const enum -- inlined at compile time, zero runtime overhead
+export const enum UserRole {
+  MEMBER = "MEMBER",
+  LIBRARIAN = "LIBRARIAN",
+}
+
+// ===== TYPE ALIASES & UNIONS (From Session 1) =====
 export type StringOrNumber = string | number;
-
-// Alias for an object shape
-export type LibraryLocation = {
-  floor: number;
-  shelf: string;
-};
-
-// Alias for a function signature
-export type CopyFormatter = (copies: number) => string;
-
-// ===== UNION TYPES =====
-export type Status = "pending" | "active" | "inactive"; 
 
 export function printId(id: StringOrNumber): void {
   console.log(`ID: ${id}`);
 }
 
-// ===== INTERSECTION TYPES =====
-// Combines ALL properties. Useful for enriched data returned from an API.
-// Example: A User object that also includes their current active transaction details.
+// Intersection Type: combines ALL properties
 export type MemberWithActiveTransaction = User & {
   activeTransaction: Transaction;
 };
