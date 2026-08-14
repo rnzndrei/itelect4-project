@@ -1,4 +1,9 @@
-import type { User, Book, Transaction, MemberWithActiveTransaction, StringOrNumber } from "./types/index";
+// At the TOP of src/index.ts
+import type { 
+  User, Book, Transaction, 
+  StringOrNumber, ApiResponse, UserUpdate, BookPreview, PublicBook, RoleCount,
+  TransactionStatus, UserRole 
+} from "./types/index";
 
 // ===== PRIMITIVE TYPE ANNOTATIONS =====
 const projectName: string = "library-system";
@@ -7,47 +12,20 @@ const isFullStack: boolean = true;
 const nothing: null = null;
 const notSet: undefined = undefined;
 
-// Function: typed parameters + typed return value
 function greet(name: string, year: number): string {
-  return `Welcome to the ${name} -- AY ${year}!`;
+  return `Welcome to ${name} -- AY ${year}!`;
 }
 
-// void: function that does NOT return a value
 function logMessage(message: string): void {
   console.log(message);
 }
 logMessage(greet(projectName, currentYear));
 
-// ===== SPECIAL TYPES =====
-// [!] any -- disables TypeScript type checking. Avoid in production.
-let anything: any = "hello";
-anything = 42; 
-anything = true; 
-
-// unknown -- the safer version of any. Requires type checking before use.
-let userInput: unknown = "test";
-if (typeof userInput === "string") {
-  console.log(userInput.toUpperCase()); // OK -- TypeScript knows it's a string here
-}
-
-// never -- a function that NEVER returns (e.g., always throws)
-function throwLibraryError(message: string): never {
-  throw new Error(`Library System Error: ${message}`);
-}
-
-// ===== USING INTERFACES (Library System Entities) =====
-const librarian: User = {
-  id: 1,
-  name: "Maria Santos",
-  email: "maria@university.edu",
-  role: "LIBRARIAN",
-  isActive: true,
-};
-
+// ===== USING INTERFACES =====
 const member: User = {
-  id: 2,
+  id: 1,
   name: "Juan dela Cruz",
-  email: "juan@university.edu",
+  email: "juan@example.com",
   role: "MEMBER",
   isActive: true,
 };
@@ -59,48 +37,116 @@ const book: Book = {
   isbn: "978-0132350884",
   total_copies: 5,
   available_copies: 3,
-  description: "A handbook of agile software craftsmanship.", // Normally AI-generated
+  description: "A handbook of agile software craftsmanship.",
 };
 
 const transaction: Transaction = {
   id: 1001,
   userId: member.id,
   bookId: book.id,
-  status: "APPROVED",
-  requestDate: new Date("2026-07-15"),
-  dueDate: new Date("2026-07-29"),
-  returnDate: null, // Not yet returned
+  status: "REQUESTED",
+  requestDate: new Date(),
+  dueDate: new Date(),
+  returnDate: null,
 };
 
-console.log("Librarian:", librarian.name);
-console.log("Book Available:", book.available_copies, "/", book.total_copies);
-console.log("Transaction Status:", transaction.status);
+console.log("Member:", member);
+console.log("Book:", book);
+console.log("Transaction:", transaction);
 
 // ===== TYPE NARROWING =====
-// Narrowing with typeof
 function processInput(input: StringOrNumber): string {
   if (typeof input === "string") {
-    return input.toUpperCase(); // TypeScript knows: input is string here
+    return input.toUpperCase();
   }
-  return input.toFixed(2); // TypeScript knows: input is number here
+  return input.toFixed(2);
 }
 
-// Narrowing with instanceof (Perfect for Date objects in Transactions)
-function formatDateOrString(value: string | Date): string {
+function formatDate(value: string | Date): string {
   if (value instanceof Date) {
-    return value.toLocaleDateString(); // TypeScript knows: it's a Date
+    return value.toLocaleDateString();
   }
-  return value; // TypeScript knows: it's a string
+  return value;
 }
 
-console.log(processInput("clean code")); // CLEAN CODE
-console.log(processInput(3.14159));      // 3.14
-console.log(formatDateOrString(transaction.dueDate)); // e.g., "7/29/2026"
+console.log(processInput("hello"));
+console.log(processInput(3.14159));
+console.log(formatDate(new Date()));
 
-// ===== USING INTERSECTION TYPE =====
-const memberWithTransaction: MemberWithActiveTransaction = {
-  ...member,
-  activeTransaction: transaction,
+// ===== GENERIC FUNCTIONS =====
+function getFirst<T>(items: T[]): T | undefined {
+  return items[0];
+}
+
+function getById<T extends { id: number }>(items: T[], id: number): T | undefined {
+  return items.find((item) => item.id === id);
+}
+
+const firstUser = getFirst<User>([member]);
+const foundUser = getById<User>([member], 1);
+
+console.log("First User:", firstUser?.name);
+console.log("Found User:", foundUser?.email);
+
+// ===== GENERIC INTERFACE =====
+const userResponse: ApiResponse<User> = {
+  success: true,
+  data: member,
 };
 
-console.log(`${memberWithTransaction.name} has a transaction status of: ${memberWithTransaction.activeTransaction.status}`);
+const bookResponse: ApiResponse<Book[]> = {
+  success: true,
+  data: [book],
+};
+
+console.log("API User:", userResponse.data.name);
+console.log("API Book:", bookResponse.data[0].title); // <-- USED
+
+// ===== USING UTILITY TYPES =====
+const patch: UserUpdate = { name: "Juan D. Cruz" };
+console.log("Patch:", patch); // <-- USED
+
+const preview: BookPreview = { id: 101, title: "Clean Code", author: "Robert C. Martin" };
+console.log("Preview:", preview); // <-- USED
+
+const publicProfile: PublicBook = {
+  id: 101,
+  title: "Clean Code",
+  author: "Robert C. Martin",
+  isbn: "978-0132350884",
+  description: "A handbook of agile software craftsmanship.",
+};
+console.log("Public Profile:", publicProfile); // <-- USED
+
+const roleCount: RoleCount = { MEMBER: 45, LIBRARIAN: 2 };
+console.log("Role Count:", roleCount); // <-- USED
+
+// ===== ReturnType<T> =====
+function makeTransaction(bookId: number) {
+  return { 
+    id: 1, 
+    userId: 1, 
+    bookId, 
+    status: "REQUESTED" as TransactionStatus, 
+    requestDate: new Date(), 
+    dueDate: new Date(), 
+    returnDate: null 
+  };
+}
+
+type NewTransaction = ReturnType<typeof makeTransaction>;
+const gt1Transaction: NewTransaction = makeTransaction(101);
+console.log("New Transaction:", gt1Transaction); // <-- USED
+
+// ===== USING TYPES (formerly Enums) =====
+let status: TransactionStatus = "REQUESTED";
+console.log("Status:", status);
+
+status = "APPROVED";
+console.log("Is Approved?", status === "APPROVED");
+
+const currentRole: UserRole = "MEMBER";
+console.log("Current Role:", currentRole);
+
+// ===== FORCE USAGE OF PRIMITIVES TO SATISFY STRICT COMPILER =====
+console.log("FullStack:", isFullStack, "Nothing:", nothing, "NotSet:", notSet);
