@@ -1,19 +1,27 @@
+// src/pages/BookDetailPage.tsx
+import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router";
 import BookCard from "../components/BookCard";
-import { allBooks } from "../data/mockData";
+import { fetchBookById } from "../api/client";
 
 function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
-  // Convert string param to number to match Book.id type
-  const bookId = id ? parseInt(id, 10) : NaN;
-  const book = allBooks.find((b) => b.id === bookId);
 
-  if (book === undefined) {
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["books", id],
+    queryFn: () => fetchBookById(id!),
+    enabled: id !== undefined,
+  });
+
+  if (isPending) {
+    return <div className="animate-pulse p-6 text-gray-500 dark:text-gray-400">Loading book details...</div>;
+  }
+
+  if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-300">
-        No book found with ID "{id}".
+        {error.message}
       </div>
     );
   }
@@ -21,10 +29,10 @@ function BookDetailPage() {
   return (
     <div>
       <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-        Book Details
+        {data.title}
       </h2>
       <div className="max-w-sm">
-        <BookCard book={book} variant="default" />
+        <BookCard book={data} variant="default" />
       </div>
       <button
         onClick={() => navigate("/books")}
