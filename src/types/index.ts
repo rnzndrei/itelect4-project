@@ -60,3 +60,21 @@ export function printId(id: StringOrNumber): void {
 export type MemberWithActiveTransaction = User & {
   activeTransaction: Transaction;
 };
+
+// ===== API TYPES (Session 7) =====
+// JSON has no Date, and json-server writes ids as strings.
+// These types describe what comes OVER THE WIRE, not our app's internal types.
+
+export type ApiBook = Omit<Book, "id"> & {
+  id: string; // json-server ids are strings
+};
+
+export type ApiTransaction = Omit<Transaction, "id" | "requestDate" | "dueDate" | "returnDate"> & {
+  id: string;
+  requestDate: string; // ISO string
+  dueDate: string;     // ISO string
+  returnDate: string | null; // ISO string or null
+};
+
+// What we SEND when creating a transaction (no id yet)
+export type NewTransaction = Omit<ApiTransaction, "id">;

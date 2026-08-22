@@ -1,16 +1,18 @@
+// src/components/Layout.tsx
 import { NavLink, Outlet } from "react-router";
-import useToggle from "../hooks/useToggle";
-import useAuthStore from "../store/authStore"; 
+import useAuthStore from "../store/authStore";
+import useUiStore from "../store/uiStore";
 
 function Layout() {
-  const [isDarkMode, toggleDarkMode] = useToggle(false);
+  const isDarkMode = useUiStore((state) => state.isDarkMode);
+  const toggleDarkMode = useUiStore((state) => state.toggleDarkMode);
   const userName = useAuthStore((state) => state.userName);
   const logout = useAuthStore((state) => state.logout);
 
   const base = "rounded px-3 py-1.5 text-sm";
   const activeLink = `${base} bg-blue-600 font-semibold text-white`;
   const idleLink = `${base} text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700`;
-  
+
   const linkClass = ({ isActive }: { isActive: boolean }): string =>
     isActive ? activeLink : idleLink;
 
@@ -44,7 +46,7 @@ function Layout() {
             </button>
           )}
           <button
-                onClick={() => toggleDarkMode()}
+            onClick={toggleDarkMode}
             className="ml-auto rounded bg-gray-800 px-3 py-1.5 text-sm text-white dark:bg-gray-200 dark:text-gray-900"
           >
             {isDarkMode ? "Light Mode" : "Dark Mode"}

@@ -1,7 +1,8 @@
 import type { Transaction } from "../types/index";
+import type { ApiTransaction } from "../types/index";
 
 interface TransactionBadgeProps {
-  transaction: Transaction;
+  transaction: ApiTransaction;
   children?: React.ReactNode;
 }
 
@@ -15,7 +16,8 @@ const TransactionBadge: React.FC<TransactionBadgeProps> = ({
         Status: {transaction.status}
       </p>
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        Due: {transaction.dueDate.toLocaleDateString()}
+        {/* dueDate is a string from the API, so wrap it in new Date() */}
+        Due: {new Date(transaction.dueDate).toLocaleDateString()}
       </p>
       {children}
     </div>

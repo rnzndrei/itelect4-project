@@ -12,7 +12,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<DashboardPage />} />
+        <Route index element={<DashboardPage />} /> {/* <-- THIS RENDERS ON "/" */}
         <Route path="books" element={<BooksPage />} />
         <Route path="books/:id" element={<BookDetailPage />} />
         <Route path="login" element={<LoginPage />} />
@@ -28,5 +28,4 @@ function App() {
     </Routes>
   );
 }
-
 export default App;

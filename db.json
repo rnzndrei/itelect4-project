@@ -1,0 +1,61 @@
+{
+  "books": [
+    {
+      "id": "1",
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "isbn": "978-0132350884",
+      "total_copies": 5,
+      "available_copies": 3,
+      "description": "A handbook of agile software craftsmanship."
+    },
+    {
+      "id": "2",
+      "title": "The Pragmatic Programmer",
+      "author": "Andrew Hunt",
+      "isbn": "978-0135957059",
+      "total_copies": 4,
+      "available_copies": 1,
+      "description": "Your journey to mastery."
+    },
+    {
+      "id": "3",
+      "title": "Designing Data-Intensive Applications",
+      "author": "Martin Kleppmann",
+      "isbn": "978-1449373320",
+      "total_copies": 3,
+      "available_copies": 2,
+      "description": "The big ideas behind reliable, scalable, and maintainable systems."
+    }
+  ],
+  "transactions": [
+    {
+      "id": "1",
+      "userId": 1,
+      "bookId": 1,
+      "status": "APPROVED",
+      "requestDate": "2026-07-15T09:00:00.000Z",
+      "dueDate": "2026-07-29T09:00:00.000Z",
+      "returnDate": null
+    },
+    {
+      "id": "2",
+      "userId": 1,
+      "bookId": 2,
+      "status": "BORROWED",
+      "requestDate": "2026-07-10T09:00:00.000Z",
+      "dueDate": "2026-07-24T09:00:00.000Z",
+      "returnDate": null
+    },
+    {
+      "userId": 1,
+      "bookId": 1,
+      "status": "REQUESTED",
+      "requestDate": "2026-08-22T04:25:50.646Z",
+      "dueDate": "2026-09-05T04:25:50.647Z",
+      "returnDate": null,
+      "id": "oMRa2D5I45Y"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
