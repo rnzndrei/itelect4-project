@@ -55,6 +55,15 @@
       "dueDate": "2026-09-05T04:25:50.647Z",
       "returnDate": null,
       "id": "oMRa2D5I45Y"
+    },
+    {
+      "userId": 1,
+      "bookId": 1,
+      "status": "REQUESTED",
+      "requestDate": "2026-08-29T14:04:31.730Z",
+      "dueDate": "2026-09-12T14:04:31.730Z",
+      "returnDate": null,
+      "id": "8M1anuChjic"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
