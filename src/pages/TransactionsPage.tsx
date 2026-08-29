@@ -1,41 +1,62 @@
-import { useState } from "react";
+// src/pages/TransactionsPage.tsx -- Session 8 Version
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ApiTransaction, Book } from "../types/index";
+import { transactionSchema } from "../schemas/transactionSchema";
+import type { TransactionFormValues } from "../schemas/transactionSchema";
 import TransactionBadge from "../components/TransactionBadge";
-import { fetchTransactions, createTransaction } from "../api/client";
-import useAuthStore from "../store/authStore";
-import type { ApiTransaction, NewTransaction } from "../types/index";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { fetchTransactions, createTransaction, fetchBooks } from "../api/client";
 
-// NO PROPS HERE. Just a plain function.
 function TransactionsPage() {
-  const [bookId, setBookId] = useState<string>("");
   const queryClient = useQueryClient();
 
-  // 1. READ: Type this explicitly as ApiTransaction[]
+  // useForm holds the values, runs the schema, and stores the errors.
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TransactionFormValues>({
+    resolver: zodResolver(transactionSchema),
+    mode: "onBlur",
+    defaultValues: { bookId: "", reason: "" },
+  });
+
+  // Fetch books for the dropdown
+  const booksQuery = useQuery<Book[]>({
+    queryKey: ["books"],
+    queryFn: fetchBooks,
+  });
+
+  // Fetch existing transactions
   const { data, isPending, isError } = useQuery<ApiTransaction[]>({
     queryKey: ["transactions"],
     queryFn: fetchTransactions,
   });
 
-  // 2. WRITE
+  // Mutation to create a new transaction
   const addTransaction = useMutation({
     mutationFn: createTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      setBookId("");
+      reset(); // clears every field at once
     },
   });
 
-  const handleRequest = (): void => {
-    if (!bookId) return;
-
+  // handleSubmit only calls this after the schema passes.
+  const onSubmit = (values: TransactionFormValues): void => {
     addTransaction.mutate({
-      userId: 1,
-      bookId: parseInt(bookId, 10),
+      userId: 1, // Hardcoded for demo (would come from auth in real app)
+      bookId: parseInt(values.bookId, 10),
       status: "REQUESTED",
       requestDate: new Date().toISOString(),
-      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
       returnDate: null,
-    } as NewTransaction);
+    });
   };
 
   if (isPending) {
@@ -56,25 +77,54 @@ function TransactionsPage() {
         My Transactions
       </h2>
 
-      <div className="mb-6 flex gap-2 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <select
-          value={bookId}
-          onChange={(e) => setBookId(e.target.value)}
-          className="flex-1 rounded border border-gray-300 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <option value="">Select a book to request...</option>
-          <option value="1">Clean Code</option>
-          <option value="2">The Pragmatic Programmer</option>
-          <option value="3">Designing Data-Intensive Applications</option>
-        </select>
-        <button
-          onClick={handleRequest}
-          disabled={!bookId || addTransaction.isPending}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-400"
+      {/* Request Form with Shadcn UI */}
+      <form 
+        onSubmit={handleSubmit(onSubmit)}
+        className="mb-6 grid gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div className="grid gap-1.5">
+          <Label htmlFor="bookId" className="text-foreground">
+            Select Book
+          </Label>
+          <select
+            id="bookId"
+            {...register("bookId")}
+            className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm text-foreground"
+          >
+            <option value="">Select a book...</option>
+            {booksQuery.data?.map((book) => (
+              <option key={book.id} value={book.id.toString()}>
+                {book.title} (Available: {book.available_copies})
+              </option>
+            ))}
+          </select>
+          {errors.bookId && (
+            <p className="text-sm text-red-600">{errors.bookId.message}</p>
+          )}
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="reason" className="text-foreground">
+            Reason for Request
+          </Label>
+          <Input
+            id="reason"
+            {...register("reason")}
+            placeholder="I need this book for my research on..."
+          />
+          {errors.reason && (
+            <p className="text-sm text-red-600">{errors.reason.message}</p>
+          )}
+        </div>
+
+        <Button 
+          type="submit" 
+          disabled={addTransaction.isPending}
+          className="justify-self-start"
         >
           {addTransaction.isPending ? "Requesting..." : "Request Book"}
-        </button>
-      </div>
+        </Button>
+      </form>
 
       {addTransaction.isError && (
         <p className="mb-4 text-sm text-red-700 dark:text-red-400">
@@ -82,6 +132,7 @@ function TransactionsPage() {
         </p>
       )}
 
+      {/* Transactions List */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {data?.map((t) => (
           <TransactionBadge key={t.id} transaction={t}>

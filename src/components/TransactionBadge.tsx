@@ -1,4 +1,3 @@
-import type { Transaction } from "../types/index";
 import type { ApiTransaction } from "../types/index";
 
 interface TransactionBadgeProps {
