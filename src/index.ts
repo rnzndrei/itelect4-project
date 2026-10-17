@@ -43,7 +43,7 @@ const book: Book = {
 const transaction: Transaction = {
   id: 1001,
   userId: member.id,
-  bookId: book.id,
+  bookId: String(book.id),
   status: "REQUESTED",
   requestDate: new Date(),
   dueDate: new Date(),
