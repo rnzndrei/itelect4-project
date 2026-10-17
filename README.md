@@ -22,30 +22,33 @@ The Library System manages three core entities:
 - **Type Narrowing**: Safe runtime checks using `typeof` and `instanceof`.
 - **Typed React Components**: Reusable UI components (`UserCard`, `BookCard`, `TransactionBadge`) with explicit `Props` interfaces and typed event handlers (`React.MouseEvent`, `React.ChangeEvent`).
 
-## 📂 Project Structure
-itelect4-project/
-├── src/
-│   ├── components/       # Reusable, strictly-typed React components
-│   │   ├── BookCard.tsx
-│   │   ├── TransactionBadge.tsx
-│   │   └── UserCard.tsx
-│   ├── types/
-│   │   └── index.ts      # All core interfaces, types, enums, and generics
-│   ├── App.tsx           # Main application component with mock data
-│   └── main.tsx          # Vite React entry point
-├── index.html
-├── package.json
-├── tsconfig.json         # Configured for strict TypeScript checking
-└── README.md
 
-🚀 How to Run
-Prerequisites: Ensure you have Node.js (v18+) and npm installed.
-Clone the repository:
-   git clone <your-repo-url>
-   cd itelect4-project
-Install dependencies:
-   npm install
-Verify TypeScript (Zero Errors):
-   npx tsc --noEmit
-Start the development server:
-   npm run dev
+---
+# Library System (Frontend)
+
+This is the frontend interface for the Library System application, built for ITELECT4. It connects to a live Express API to manage user accounts and book transactions.
+
+##  Live Site
+**[Insert your Vercel Frontend URL here, e.g., https://itelect4-project-iota.vercel.app]**
+
+## 🛠 Tech Stack
+- **Framework:** React 18
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **State Management:** Zustand (Auth), React Query (Server State)
+- **Styling:** Tailwind CSS
+- **Forms:** React Hook Form + Zod
+- **Deployment:** Vercel
+
+## ✨ Features
+- **Authentication:** Real user registration and login using JWT.
+- **Session Persistence:** Auth state is saved in LocalStorage.
+- **Book Catalog:** View available books fetched from the live API.
+- **Transaction Management:** Request books and view request history.
+- **Responsive Design:** Fully responsive UI with Dark Mode support.
+
+## ⚙️ Environment Variables
+This project requires a `.env` file in the root directory. **Never commit this file.**
+
+```env
+VITE_API_URL=https://your-backend-url.vercel.app
