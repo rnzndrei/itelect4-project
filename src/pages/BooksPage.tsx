@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import BookCard from "../components/BookCard";
 import usePrevious from "../hooks/usePrevious";
 import useUiStore from "../store/uiStore";
-import { fetchBooks } from "../api/client";
+import { API_URL, fetchBooks } from "../api/client";
 
 function BooksPage() {
   const { data, isPending, isError, error } = useQuery({
@@ -22,8 +22,8 @@ function BooksPage() {
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-300">
-        {error.message} -- Is json-server running on port 3001?
+      <div className="rounded-lg bg-red-50 p-4 text-red-700">
+        {error.message} -- tried {API_URL}/api/books
       </div>
     );
   }
