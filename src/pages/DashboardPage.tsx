@@ -1,32 +1,30 @@
-import { useState } from "react";
-import type { User } from "../types/index";
-import UserCard from "../components/UserCard";
-import useToggle from "../hooks/useToggle";
-import { member } from "../data/mockData";
+import { useNavigate } from "react-router";
+import useAuthStore from "../store/authStore";
 
 function DashboardPage() {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [showDetails, toggleDetails] = useToggle(false);
+  const userName = useAuthStore((state) => state.userName);
+  const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
+
+  // If not logged in, redirect to login
+  if (!token) {
+    navigate("/login");
+    return null;
+  }
 
   return (
     <div>
       <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
         Dashboard
       </h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <UserCard user={member} onSelect={setSelectedUser} />
-      </div>
-      <button
-        onClick={() => toggleDetails()}
-        className="mt-4 rounded bg-gray-200 px-3 py-1.5 text-sm dark:bg-gray-700 dark:text-white"
-      >
-        {showDetails ? "Hide" : "Show"} Details
-      </button>
-      {showDetails && selectedUser !== null && (
-        <p className="mt-2 text-gray-700 dark:text-gray-300">
-          Selected: {selectedUser.name} ({selectedUser.role})
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <p className="text-lg text-gray-700 dark:text-gray-300">
+          Welcome back, <span className="font-semibold">{userName}</span>!
         </p>
-      )}
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          You are logged in. Navigate to Transactions to manage your book requests.
+        </p>
+      </div>
     </div>
   );
 }

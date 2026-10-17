@@ -49,15 +49,11 @@ function TransactionsPage() {
 
   // handleSubmit only calls this after the schema passes.
   const onSubmit = (values: TransactionFormValues): void => {
-    addTransaction.mutate({
-      userId: 1, // Hardcoded for demo (would come from auth in real app)
-      bookId: parseInt(values.bookId, 10),
-      status: "REQUESTED",
-      requestDate: new Date().toISOString(),
-      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
-      returnDate: null,
-    });
-  };
+      addTransaction.mutate({
+        bookId: values.bookId, // <-- REMOVE parseInt(...). Just send the string.
+        notes: values.reason,
+      });
+    };
 
   if (isPending) {
     return <div className="animate-pulse p-6 text-gray-500 dark:text-gray-400">Loading transactions...</div>;

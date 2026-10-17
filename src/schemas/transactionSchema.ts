@@ -1,5 +1,3 @@
-// One schema. The rules live here, and the TypeScript type is DERIVED
-// from it -- so a rule and its type can never drift apart.
 import { z } from "zod";
 
 export const transactionSchema = z.object({

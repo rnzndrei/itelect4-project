@@ -1,0 +1,65 @@
+import { useNavigate, Link } from "react-router";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useAuthStore from "../store/authStore";
+import { registerUser, loginUser } from "../api/client";
+import { registerSchema, type RegisterFormValues } from "../schemas/authSchema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+function RegisterPage() {
+  const setSession = useAuthStore((state) => state.setSession);
+  const navigate = useNavigate();
+
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: "onBlur",
+    defaultValues: { name: "", email: "", password: "" },
+  });
+
+  const signUp = useMutation({
+    mutationFn: async (values: RegisterFormValues) => {
+      await registerUser(values);
+      return loginUser({ email: values.email, password: values.password });
+    },
+    onSuccess: (reply) => {
+      setSession(reply.token, reply.user.name);
+      navigate("/transactions");
+    },
+  });
+
+  const onSubmit = (values: RegisterFormValues) => signUp.mutate(values);
+
+  return (
+    <div className="max-w-sm space-y-4">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Register</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="name">Name</Label>
+          <Input id="name" {...register("name")} aria-invalid={errors.name ? true : undefined} />
+          {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" {...register("email")} aria-invalid={errors.email ? true : undefined} />
+          {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" type="password" {...register("password")} aria-invalid={errors.password ? true : undefined} />
+          {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+        </div>
+        <Button type="submit" disabled={signUp.isPending} className="justify-self-start">
+          {signUp.isPending ? "Creating account..." : "Register"}
+        </Button>
+      </form>
+      {signUp.isError && <p className="text-sm text-red-700">{signUp.error.message}</p>}
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Have an account? <Link to="/login" className="font-semibold text-blue-600">Log In</Link>
+      </p>
+    </div>
+  );
+}
+export default RegisterPage;

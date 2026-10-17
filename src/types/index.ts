@@ -20,11 +20,12 @@ export interface Book {
 export interface Transaction {
   id: number;
   userId: number;
-  bookId: number;
-  status: TransactionStatus;
+  bookId: string;
+  status: "REQUESTED" | "APPROVED" | "BORROWED" | "RETURNED" | "OVERDUE";
   requestDate: Date;
   dueDate: Date;
   returnDate: Date | null;
+  notes?: string; // <-- ADD THIS LINE
 }
 
 // ===== GENERIC INTERFACE =====
@@ -61,20 +62,25 @@ export type MemberWithActiveTransaction = User & {
   activeTransaction: Transaction;
 };
 
-// ===== API TYPES (Session 7) =====
-// JSON has no Date, and json-server writes ids as strings.
-// These types describe what comes OVER THE WIRE, not our app's internal types.
+// ===== API TYPES (Updated for MongoDB) =====
 
-export type ApiBook = Omit<Book, "id"> & {
-  id: string; // json-server ids are strings
-};
-
-export type ApiTransaction = Omit<Transaction, "id" | "requestDate" | "dueDate" | "returnDate"> & {
+// What the database returns for a Transaction
+export type ApiTransaction = Omit<Transaction, "id" | "userId" | "requestDate" | "dueDate" | "returnDate"> & {
   id: string;
-  requestDate: string; // ISO string
-  dueDate: string;     // ISO string
-  returnDate: string | null; // ISO string or null
+  userId: string;
+  requestDate: string;
+  dueDate: string;
+  returnDate: string | null;
 };
 
-// What we SEND when creating a transaction (no id yet)
-export type NewTransaction = Omit<ApiTransaction, "id">;
+// What we SEND to create a transaction (no id, no userId, no dates)
+export type NewTransaction = Pick<Transaction, "bookId" | "notes">;
+
+// What the database returns for a User
+export type ApiUser = Omit<User, "id"> & { id: string };
+
+// What /api/auth/login returns
+export interface AuthReply {
+  token: string;
+  user: ApiUser;
+}

@@ -1,48 +1,43 @@
-// src/api/client.ts -- NEW FILE
-// Every fetch call to json-server lives in this one file.
+import type { Book, ApiTransaction, NewTransaction, AuthReply, ApiUser } from "../types/index";
+import useAuthStore from "../store/authStore";
 
-import type { Book, ApiTransaction, NewTransaction } from "../types/index";
+export const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) throw new Error("VITE_API_URL is missing. Check your .env file.");
 
-export const API_URL = "http://localhost:3001";
-
-// GET /books -> the whole list
-export async function fetchBooks(): Promise<Book[]> {
-  const res = await fetch(`${API_URL}/books`);
-  if (!res.ok) {
-    throw new Error("Could not load books");
-  }
-  return res.json();
-}
-
-// GET /books/:id -> one book by ID
-export async function fetchBookById(id: string): Promise<Book> {
-  const res = await fetch(`${API_URL}/books/${id}`);
-  if (!res.ok) {
-    throw new Error(`Could not load book with id "${id}"`);
-  }
-  return res.json();
-}
-
-// GET /transactions -> the whole list
-export async function fetchTransactions(): Promise<ApiTransaction[]> {
-  const res = await fetch(`${API_URL}/transactions`);
-  if (!res.ok) {
-    throw new Error("Could not load transactions");
-  }
-  return res.json();
-}
-
-// POST /transactions -> create a new transaction
-export async function createTransaction(
-  newTransaction: NewTransaction
-): Promise<ApiTransaction> {
-  const res = await fetch(`${API_URL}/transactions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newTransaction),
+// The single helper that handles the URL, the token, and error messages
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = useAuthStore.getState().token;
+  
+  const res = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...init.headers,
+    },
   });
+
   if (!res.ok) {
-    throw new Error("Could not create transaction");
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.message ?? `Request failed (${res.status})`);
   }
   return res.json();
+}
+
+// Public Routes
+export function fetchBooks(): Promise<Book[]> { return request<Book[]>("/api/books"); }
+export function fetchBookById(id: string): Promise<Book> { return request<Book>(`/api/books/${id}`); }
+
+// Private Routes
+export function fetchTransactions(): Promise<ApiTransaction[]> { return request<ApiTransaction[]>("/api/transactions"); }
+export function createTransaction(newTransaction: NewTransaction): Promise<ApiTransaction> {
+  return request<ApiTransaction>("/api/transactions", { method: "POST", body: JSON.stringify(newTransaction) });
+}
+
+// Auth Routes
+export function loginUser(body: { email: string; password: string }): Promise<AuthReply> {
+  return request<AuthReply>("/api/auth/login", { method: "POST", body: JSON.stringify(body) });
+}
+export function registerUser(body: { name: string; email: string; password: string }): Promise<ApiUser> {
+  return request<ApiUser>("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
 }
