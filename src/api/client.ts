@@ -1,5 +1,6 @@
 import type { Book, ApiTransaction, NewTransaction, AuthReply, ApiUser } from "../types/index";
 import useAuthStore from "../store/authStore";
+import type { AiReview } from "../types/index.ts";
 
 export const API_URL = import.meta.env.VITE_API_URL;
 if (!API_URL) throw new Error("VITE_API_URL is missing. Check your .env file.");
@@ -40,4 +41,10 @@ export function loginUser(body: { email: string; password: string }): Promise<Au
 }
 export function registerUser(body: { name: string; email: string; password: string }): Promise<ApiUser> {
   return request<ApiUser>("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
+}
+export function askAi(prompt: string): Promise<AiReview> {
+  return request<AiReview>("/api/ai", {
+    method: "POST",
+    body: JSON.stringify({ prompt }),
+  });
 }
