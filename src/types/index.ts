@@ -84,3 +84,10 @@ export interface AuthReply {
   token: string;
   user: ApiUser;
 }
+// ===== SESSION 11: AI Review Types =====
+export interface AiReview {
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  urgency: "urgent" | "normal" | "low";
+}

@@ -32,6 +32,7 @@ function Layout() {
           <NavLink to="/transactions" className={linkClass}>
             Transactions
           </NavLink>
+          <NavLink to="/review" className={linkClass}>AI Assistant</NavLink>
 
           {userName === null ? (
             <>

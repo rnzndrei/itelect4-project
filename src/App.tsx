@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RegisterPage from "./pages/RegisterPage";
+import ReviewPage from "./pages/ReviewPage";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         <Route path="books/:id" element={<BookDetailPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} /> {/* <-- ADD THIS */}
+        <Route path="review" element={<ReviewPage />} /> {/* <-- ADD THIS */}
+
         
         {/* Protected Route Guard */}
         <Route element={<ProtectedRoute />}>
