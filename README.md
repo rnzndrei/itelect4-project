@@ -20,6 +20,7 @@ flowchart LR
   fe -- "fetch + Bearer token" --> be
   be -- "Mongoose" --> db
   be -- "GEMINI_API_KEY" --> ai
+```
 
 ## Features
 
