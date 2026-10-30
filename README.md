@@ -1,13 +1,13 @@
-Website Link: https://itelect4-backend-six.vercel.app/
+Website Link: https://itelect4-project-iota.vercel.app
 
-# itelect4-backend
+# itelect4-project
 
-[![CI](https://github.com/rnzndrei/itelect4-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/rnzndrei/itelect4-backend/actions/workflows/ci.yml)
+[![CI](https://github.com/rnzndrei/itelect4-project/actions/workflows/ci.yml/badge.svg)](https://github.com/rnzndrei/itelect4-project/actions/workflows/ci.yml)
 
-The REST API behind the Library System: Express in TypeScript, MongoDB Atlas through Mongoose, JWT authentication, and one route that asks Gemini to review book request descriptions.
+The frontend of the Library System: React + Vite, deployed on Vercel. Connects to the itelect4-backend API for authentication, book browsing, transactions, and AI-powered request reviews.
 
-- **Live API:** https://itelect4-backend-six.vercel.app/api/health
-- **Frontend repo:** https://github.com/rnzndrei/itelect4-project
+- **Live Site:** https://itelect4-project-iota.vercel.app
+- **Backend repo:** https://github.com/rnzndrei/itelect4-backend
 
 ## Architecture
 
@@ -24,101 +24,89 @@ flowchart LR
 
 ## Features
 
-- User Authentication: JWT-based registration and login with bcrypt password hashing.
-- Book Management: CRUD operations for library books with availability tracking.
-- Transaction System: Book borrowing requests with status lifecycle (REQUESTED → APPROVED → BORROWED → RETURNED).
-- AI Research Assistant: Gemini-powered analysis of book request descriptions with structured JSON output validated by Zod.
-- Rate Limiting: Five AI reviews per minute per user to protect quota.
-- CORS Protection: Configurable origin whitelist for secure cross-origin requests.
+- User Authentication: Registration and login with JWT persistence in localStorage.
+- Dashboard: Personalized welcome page for logged-in users.
+- Book Catalog: Browse available books with real-time availability counts.
+- Transaction Management: Request books, view request history, and track status.
+- AI Research Assistant: Get AI-powered feedback on book request descriptions.
+- Responsive Design: Mobile-friendly interface with dark mode support.
+- Form Validation: Client-side validation with Zod schemas and React Hook Form.
 
 ## Tech Stack
 
-- Runtime: Node.js
-- Framework: Express
+- Framework: React 18
+- Build Tool: Vite
 - Language: TypeScript
-- Database: MongoDB Atlas via Mongoose
-- Authentication: JSON Web Tokens (JWT) & bcryptjs
-- AI: Google Gemini API (@google/genai SDK)
-- Validation: Zod schemas
-- Testing: Vitest + Supertest
+- State Management: Zustand (auth) & React Query (server state)
+- Styling: Tailwind CSS
+- Forms: React Hook Form + Zod
+- Testing: Vitest + Testing Library
 - Deployment: Vercel
 
 ## Local Setup
-
 1. Clone the repository:
-   git clone https://github.com/rnzndrei/itelect4-backend.git
-   cd itelect4-backend
+  git clone https://github.com/rnzndrei/itelect4-project.git
+  cd itelect4-project
 2. Install dependencies:
-   npm install
+  npm install
 3. Set up environment variables:
 Create a .env file in the root directory with:
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_super_secret_jwt_key
-   CORS_ORIGIN=http://localhost:5173,https://itelect4-project-iota.vercel.app
-   GEMINI_API_KEY=your_gemini_api_key
-   PORT=4000
-4. Seed the database (optional):
-   npm run seed
-5. Start the development server:
-   npm run dev
-The API will be available at http://localhost:4000.
-
-## API Endpoints
-
-### Public Routes (No Token Required)
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/health` | Checks API and database connection status |
-| `GET` | `/api/books` | Returns a list of all available books |
-| `GET` | `/api/books/:id` | Returns details for a specific book |
-| `POST` | `/api/auth/register` | Creates a new user account |
-| `POST` | `/api/auth/login` | Authenticates a user and returns a JWT |
-
-### Protected Routes (Requires `Authorization: Bearer <token>`)
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/transactions` | Returns all transactions for the logged-in user |
-| `POST` | `/api/transactions` | Creates a new book request transaction |
-| `POST` | `/api/ai` | Analyzes a book request description using Gemini |
+  VITE_API_URL=https://itelect4-backend-six.vercel.app
+4. Start the development server:
+  npm run dev
+The app will be available at http://localhost:5173.
 
 ## Testing
+
 Run the test suite:
-    npm test
-Tests include authentication checks, request schema enforcement, and Supertest integration tests.
+  npm test
+Tests include component renders, custom hook state checks, and form validation behavior.
+
+## Pages
+
+| Route | Description | Access |
+| :--- | :--- | :--- |
+| `/` | Dashboard | Protected |
+| `/books` | Book catalog | Public |
+| `/transactions` | Transaction management | Protected |
+| `/review` | AI Research Assistant | Protected |
+| `/login` | Login page | Public |
+| `/register` | Registration page | Public |
 
 ## AI Use Disclosure
 
-This project uses Google's Gemini API (via the @google/genai SDK) to generate book request reviews. The AI's output is validated against a Zod schema before being sent to clients. The system prompt instructs the model to act as a librarian assistant, and few-shot examples guide the response format. The API key is stored server-side and never exposed to the frontend.
+This project uses Google's Gemini API (via the backend) to generate book request reviews. The AI's output is validated against a Zod schema before being displayed to users. The frontend never communicates directly with Gemini; all AI requests go through the backend's /api/ai endpoint.
 
 ## Project Structure
 
 ```
 src/
-├── ai/
-│   ├── gemini.ts        # Gemini client and review function
-│   └── prompt.ts        # System prompt and examples
-├── config/
-│   └── db.ts            # MongoDB connection
-├── middleware/
-│   └── auth.ts          # JWT verification middleware
-├── models/
-│   ├── Book.ts          # Book schema
-│   ├── Transaction.ts   # Transaction schema
-│   └── User.ts          # User schema
-├── routes/
-│   ├── ai.ts            # AI review route
-│   ├── auth.ts          # Authentication routes
-│   ├── books.ts         # Book routes
-│   └── transactions.ts  # Transaction routes
+├── api/
+│   └── client.ts          # API client with auth token handling
+├── components/
+│   ├── Layout.tsx         # Main layout with navigation
+│   ├── TransactionBadge.tsx # Transaction status display
+│   └── ui/                # shadcn/ui components
+├── hooks/
+│   └── useToggle.ts       # Custom toggle hook
+├── pages/
+│   ├── BooksPage.tsx      # Book catalog
+│   ├── DashboardPage.tsx  # User dashboard
+│   ├── LoginPage.tsx      # Login form
+│   ├── NotFoundPage.tsx   # 404 page
+│   ├── RegisterPage.tsx   # Registration form
+│   ├── ReviewPage.tsx     # AI Research Assistant
+│   └── TransactionsPage.tsx # Transaction management
 ├── schemas/
-│   └── review.ts        # Zod schemas for AI requests/replies
+│   ├── authSchema.ts      # Login/register validation
+│   ├── reviewSchema.ts    # AI review form validation
+│   └── transactionSchema.ts # Transaction form validation
+├── store/
+│   ├── authStore.ts       # Zustand auth store
+│   └── uiStore.ts         # UI state store
 ├── types/
-│   └── index.ts         # TypeScript interfaces
-├── app.ts               # Express app setup
-├── seed.ts              # Database seeder
-└── server.ts            # Server entry point
-tests/
-└── ai.test.ts           # Supertest tests for AI route
+│   └── index.ts           # TypeScript interfaces
+├── App.tsx                # Main app component with routing
+├── main.tsx               # Entry point
+└── index.css              # Global styles
 ```
