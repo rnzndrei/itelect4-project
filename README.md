@@ -1,56 +1,121 @@
-WEBSITE LINK: https://itelect4-project-iota.vercel.app/
+Website Link: https://itelect4-backend-six.vercel.app/
 
-# Library System (ITELECT4 Project)
+# itelect4-backend
 
-A strictly-typed TypeScript web application for managing university library operations. This project is built incrementally, session by session, demonstrating mastery of advanced TypeScript concepts, React component architecture, and type-safe state management.
+[![CI](https://github.com/rnzndrei/itelect4-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/rnzndrei/itelect4-backend/actions/workflows/ci.yml)
 
-## 📚 Project Concept
-The Library System manages three core entities:
-1. **User**: Features role-based access control (`MEMBER` or `LIBRARIAN`) to power future UI conditional rendering.
-2. **Book**: Includes inventory tracking (`total_copies`, `available_copies`) to support live count updates.
-3. **Transaction**: Implements a multi-step status lifecycle (`REQUESTED` → `APPROVED` → `BORROWED` → `RETURNED` / `OVERDUE`).
+The REST API behind the Library System: Express in TypeScript, MongoDB Atlas through Mongoose, JWT authentication, and one route that asks Gemini to review book request descriptions.
 
-## 🛠️ Tech Stack
-- **Language**: TypeScript (Strict Mode)
-- **Frontend Framework**: React 18+ with Vite
-- **Build Tool**: Vite
-- **Styling**: CSS (with Tailwind CSS integration planned for future sessions)
+- **Live API:** https://itelect4-backend-six.vercel.app/api/health
+- **Frontend repo:** https://github.com/rnzndrei/itelect4-project
 
-## ✨ TypeScript Features Implemented
-- **Core Interfaces**: Strict shapes for `User`, `Book`, and `Transaction`.
-- **Generics**: Reusable `ApiResponse<T>` interface and constrained generic functions (`getFirst<T>`, `getById<T>`).
-- **Utility Types**: Practical applications of `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, T>`, and `ReturnType<T>`.
-- **Enums**: Runtime `TransactionStatus` enum for lifecycle management and `const enum` for `UserRole`.
-- **Type Narrowing**: Safe runtime checks using `typeof` and `instanceof`.
-- **Typed React Components**: Reusable UI components (`UserCard`, `BookCard`, `TransactionBadge`) with explicit `Props` interfaces and typed event handlers (`React.MouseEvent`, `React.ChangeEvent`).
+## Architecture
 
+```mermaid
+flowchart LR
+  fe["itelect4-project<br/>React + Vite on Vercel"]
+  be["itelect4-backend<br/>Express on Vercel"]
+  db[("MongoDB Atlas")]
+  ai["Gemini API"]
+  fe -- "fetch + Bearer token" --> be
+  be -- "Mongoose" --> db
+  be -- "GEMINI_API_KEY" --> ai
 
----
-# Library System (Frontend)
+## Features
 
-This is the frontend interface for the Library System application, built for ITELECT4. It connects to a live Express API to manage user accounts and book transactions.
+- User Authentication: JWT-based registration and login with bcrypt password hashing.
+- Book Management: CRUD operations for library books with availability tracking.
+- Transaction System: Book borrowing requests with status lifecycle (REQUESTED → APPROVED → BORROWED → RETURNED).
+- AI Research Assistant: Gemini-powered analysis of book request descriptions with structured JSON output validated by Zod.
+- Rate Limiting: Five AI reviews per minute per user to protect quota.
+- CORS Protection: Configurable origin whitelist for secure cross-origin requests.
 
-##  Live Site
-**[Insert your Vercel Frontend URL here, e.g., https://itelect4-project-iota.vercel.app]**
+## Tech Stack
 
-## 🛠 Tech Stack
-- **Framework:** React 18
-- **Build Tool:** Vite
-- **Language:** TypeScript
-- **State Management:** Zustand (Auth), React Query (Server State)
-- **Styling:** Tailwind CSS
-- **Forms:** React Hook Form + Zod
-- **Deployment:** Vercel
+- Runtime: Node.js
+- Framework: Express
+- Language: TypeScript
+- Database: MongoDB Atlas via Mongoose
+- Authentication: JSON Web Tokens (JWT) & bcryptjs
+- AI: Google Gemini API (@google/genai SDK)
+- Validation: Zod schemas
+- Testing: Vitest + Supertest
+- Deployment: Vercel
 
-## ✨ Features
-- **Authentication:** Real user registration and login using JWT.
-- **Session Persistence:** Auth state is saved in LocalStorage.
-- **Book Catalog:** View available books fetched from the live API.
-- **Transaction Management:** Request books and view request history.
-- **Responsive Design:** Fully responsive UI with Dark Mode support.
+## Local Setup
 
-## ⚙️ Environment Variables
-This project requires a `.env` file in the root directory. **Never commit this file.**
+1. Clone the repository:
+   git clone https://github.com/rnzndrei/itelect4-backend.git
+   cd itelect4-backend
+2. Install dependencies:
+   npm install
+3. Set up environment variables:
+Create a .env file in the root directory with:
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_super_secret_jwt_key
+   CORS_ORIGIN=http://localhost:5173,https://itelect4-project-iota.vercel.app
+   GEMINI_API_KEY=your_gemini_api_key
+   PORT=4000
+4. Seed the database (optional):
+   npm run seed
+5. Start the development server:
+   npm run dev
+The API will be available at http://localhost:4000.
 
-```env
-VITE_API_URL=https://your-backend-url.vercel.app
+## API Endpoints
+
+### Public Routes (No Token Required)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Checks API and database connection status |
+| `GET` | `/api/books` | Returns a list of all available books |
+| `GET` | `/api/books/:id` | Returns details for a specific book |
+| `POST` | `/api/auth/register` | Creates a new user account |
+| `POST` | `/api/auth/login` | Authenticates a user and returns a JWT |
+
+### Protected Routes (Requires `Authorization: Bearer <token>`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/transactions` | Returns all transactions for the logged-in user |
+| `POST` | `/api/transactions` | Creates a new book request transaction |
+| `POST` | `/api/ai` | Analyzes a book request description using Gemini |
+
+## Testing
+Run the test suite:
+    npm test
+Tests include authentication checks, request schema enforcement, and Supertest integration tests.
+
+## AI Use Disclosure
+
+This project uses Google's Gemini API (via the @google/genai SDK) to generate book request reviews. The AI's output is validated against a Zod schema before being sent to clients. The system prompt instructs the model to act as a librarian assistant, and few-shot examples guide the response format. The API key is stored server-side and never exposed to the frontend.
+
+## Project Structure
+
+src/
+├── ai/
+│   ├── gemini.ts        # Gemini client and review function
+│   └── prompt.ts        # System prompt and examples
+├── config/
+│   ── db.ts            # MongoDB connection
+├── middleware/
+│   └── auth.ts          # JWT verification middleware
+├── models/
+│   ├── Book.ts          # Book schema
+│   ├── Transaction.ts   # Transaction schema
+│   └── User.ts          # User schema
+├── routes/
+│   ├── ai.ts            # AI review route
+│   ├── auth.ts          # Authentication routes
+│   ├── books.ts         # Book routes
+│   └── transactions.ts  # Transaction routes
+├── schemas/
+│   └── review.ts        # Zod schemas for AI requests/replies
+├── types/
+│   └── index.ts         # TypeScript interfaces
+├── app.ts               # Express app setup
+├── seed.ts              # Database seeder
+└── server.ts            # Server entry point
+tests/
+└── ai.test.ts           # Supertest tests for AI route
