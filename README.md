@@ -94,12 +94,13 @@ This project uses Google's Gemini API (via the @google/genai SDK) to generate bo
 
 ## Project Structure
 
+```
 src/
 ├── ai/
 │   ├── gemini.ts        # Gemini client and review function
 │   └── prompt.ts        # System prompt and examples
 ├── config/
-│   ── db.ts            # MongoDB connection
+│   └── db.ts            # MongoDB connection
 ├── middleware/
 │   └── auth.ts          # JWT verification middleware
 ├── models/
@@ -120,3 +121,4 @@ src/
 └── server.ts            # Server entry point
 tests/
 └── ai.test.ts           # Supertest tests for AI route
+```
